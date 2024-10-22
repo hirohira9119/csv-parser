@@ -6524,6 +6524,7 @@ namespace csv {
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -6722,7 +6723,11 @@ namespace csv {
          *
          *  @param[out] filename  File to write to
          */
-        DelimWriter(const std::string& filename) : DelimWriter(std::ifstream(filename)) {};
+        DelimWriter(const std::string& filename) 
+            : inner_os(new std::ofstream(filename)) 
+            , out(*inner_os)
+            , quote_minimal(true)
+            {}
 
         /** Destructor will flush remaining data
          *
@@ -6877,6 +6882,7 @@ namespace csv {
             IF_CONSTEXPR(Flush) out.flush();
         }
 
+        std::unique_ptr<std::ofstream> inner_os;
         OutputStream & out;
         bool quote_minimal;
     };
